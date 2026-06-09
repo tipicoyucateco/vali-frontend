@@ -141,11 +141,11 @@
                   <button
                     v-for="(option, index) in currentQuestion.options"
                     :key="index"
-                    @click="answerQuestion(option)"
+                    @click="answerQuestion(option.value)"
                     :disabled="isLoading"
                     class="w-full text-left px-3 py-2 border border-[#008069] rounded-md hover:bg-[#d1f4cc]/30 transition-colors disabled:opacity-50 text-sm text-gray-700"
                   >
-                    {{ option }}
+                    {{ option.label }}
                   </button>
                 </div>
 
