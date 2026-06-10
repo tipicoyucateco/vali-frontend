@@ -13,7 +13,12 @@
             </div>
             <div>
               <h1 class="text-lg font-semibold">Vali</h1>
-              <p class="text-xs text-[#d1f4cc]">Validador de Pre-Facturas con IA</p>
+              <p class="text-xs text-[#d1f4cc]">
+                Validador de Pre-Facturas con IA
+                <span v-if="systemInfo && systemInfo.aiProvider && systemInfo.aiModel" class="ml-2 opacity-80">
+                  • {{ systemInfo.aiProvider }} ({{ systemInfo.aiModel }})
+                </span>
+              </p>
             </div>
           </div>
           <div v-if="sessionId" class="flex items-center space-x-2">
@@ -180,8 +185,7 @@
             </div>
             <div class="flex-1 max-w-md">
               <div class="bg-red-50 border-l-4 border-red-500 rounded-lg rounded-tl-none shadow-sm p-4">
-                <p class="text-sm font-semibold text-red-600 mb-1">⛔ Validación Detenida</p>
-                <p class="text-sm text-red-800">{{ validationResult.abortReason }}</p>
+                <p class="text-sm font-semibold text-red-600">⛔ Documento no válido</p>
               </div>
               <p class="text-xs text-gray-400 mt-1 ml-2">Hace un momento</p>
             </div>
@@ -268,7 +272,8 @@
           </div>
 
           <!-- Detalle de validaciones exitosas agrupadas por categoría -->
-          <div v-if="passedValidations.length > 0" class="flex items-start space-x-2">
+          <!-- Solo mostrar si NO hay abortReason (validación no se detuvo) -->
+          <div v-if="!validationResult.abortReason && passedValidations.length > 0" class="flex items-start space-x-2">
             <div class="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -340,7 +345,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import valiService from '../services/valiService.js';
 
 const currentStep = ref('upload'); // 'upload', 'validating', 'question', 'results'
@@ -355,6 +360,21 @@ const fileId = ref(null);
 const currentQuestion = ref(null);
 const userAnswer = ref('');
 const validationResult = ref(null);
+const systemInfo = ref({
+  aiProvider: null,
+  aiModel: null,
+  version: '1.0.0'
+});
+
+// Cargar información del sistema al montar el componente
+onMounted(async () => {
+  try {
+    const info = await valiService.getSystemInfo();
+    systemInfo.value = info;
+  } catch (err) {
+    console.error('Error loading system info:', err);
+  }
+});
 
 // Computed property para filtrar solo validaciones exitosas
 const passedValidations = computed(() => {

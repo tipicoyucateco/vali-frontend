@@ -83,6 +83,24 @@ class ValiService {
       return false;
     }
   }
+
+  /**
+   * Obtiene información del sistema (provider de IA, modelo, versión)
+   * @returns {Promise<{aiProvider: string, aiModel: string, version: string, environment: string}>}
+   */
+  async getSystemInfo() {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/info`);
+      return response.data;
+    } catch (error) {
+      return {
+        aiProvider: 'DESCONOCIDO',
+        aiModel: 'N/A',
+        version: '1.0.0',
+        environment: 'production'
+      };
+    }
+  }
 }
 
 export default new ValiService();
